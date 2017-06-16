@@ -679,9 +679,10 @@ func (t *Type) createTypeFromPropItems(name string, apiDef *APIDefinition) {
 		return
 	}
 
+	// to define new type, it needs to have 'properties' field
 	props, ok := items["properties"].(map[interface{}]interface{})
-	if !ok {
-		panic("inline item's properties expect properties in type:map[string]interface{}")
+	if !ok { // doesn't define new type, no problem, we can simply return
+		return
 	}
 	newName := t.Name + name + "Item"
 	created := apiDef.createType(newName, tip, props)
