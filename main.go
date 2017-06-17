@@ -146,7 +146,7 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:        "import-path",
-					Value:       "examples.com/client",
+					Value:       "",
 					Usage:       "import path of the generated code",
 					Destination: &clientCommand.ImportPath,
 				},

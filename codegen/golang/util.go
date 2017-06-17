@@ -29,9 +29,10 @@ func setRootImportPath(importPath, targetDir string) string {
 		panic("invalid targetDir:" + err.Error())
 	}
 
-	// return empty  path if targetDir not under GOPATH
+	// panic if user doesn't specify import path and target dir
+	// not under GOPATH.
 	if !strings.HasPrefix(absTargetDir, gopath) {
-		return ""
+		panic("please specify '--import-path' or set '--dir' under your GOPATH")
 	}
 
 	// set import path
