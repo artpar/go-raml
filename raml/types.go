@@ -242,7 +242,7 @@ func toProperty(name string, p interface{}) Property {
 			case "capnpType":
 				p.CapnpType = v.(string)
 			case "properties":
-				log.Fatalf("Properties field should already be deleted. Seems there are unsupported inline type")
+				log.Fatalf("Properties field of '%v' should already be deleted. Seems there are unsupported inline type", name)
 			}
 		}
 		return p
@@ -645,13 +645,46 @@ func (t *Type) postProcess(name string, apiDef *APIDefinition) error {
 
 	// process type in properties
 	for name := range t.Properties {
+		t.parseOptionalProperty(name)
 		t.createTypeFromPropProperty(name, apiDef)
 		t.createTypeFromPropItems(name, apiDef)
 	}
 	return nil
 }
 
-// create type from item
+// parse property with `?` suffix as optional property
+func (t *Type) parseOptionalProperty(name string) {
+	if !strings.HasSuffix(name, "?") {
+		return
+	}
+	newName := strings.TrimSuffix(name, "?")
+
+	p := t.Properties[name]
+
+	// we will modify both property name
+	// and content, so we delete it
+	delete(t.Properties, name)
+
+	switch p.(type) {
+	case string:
+		// if it is a simple string
+		// convert it to map style property
+		newProp := map[interface{}]interface{}{}
+		newProp["type"] = p
+		newProp["required"] = false
+		t.Properties[newName] = newProp
+
+	case map[interface{}]interface{}:
+		// already in map style property
+		propMap := p.(map[interface{}]interface{})
+		propMap["required"] = false
+		t.Properties[newName] = propMap
+	default:
+		log.Fatalf("unexpeced property type:", p)
+	}
+}
+
+// create type from item with inline type definition
 func (t *Type) createTypeFromPropItems(name string, apiDef *APIDefinition) {
 	p := t.Properties[name]
 
