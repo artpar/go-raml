@@ -46,12 +46,12 @@ func setRootImportPath(importPath, targetDir string) string {
 
 // escape identifier to meet this spec
 // https://golang.org/ref/spec#Identifiers
-// - firstChar need to be letter
+// - firstChar need to be letter, prepend "The_" if it is not
 // - replace "-" with "_"
 func escapeIdentifier(str string) string {
 	r := []rune(str)
 	if !unicode.IsLetter(r[0]) {
-		r = append([]rune("_"), r...)
+		r = append([]rune("The_"), r...)
 	}
 	str = string(r)
 	return strings.Replace(str, "-", "_", -1)
